@@ -5,8 +5,8 @@ import java.util.*;
 import java.util.List;
 
 public class Model {
-    private Map<Character, Double> dictionary;
-    private String stringToCode;
+    private Map<Character, Double> dictionary;  //map for letter and her probability
+    private String stringToCode;    //input string to code
 
     public Model() throws Exception
     {
@@ -20,6 +20,7 @@ public class Model {
 
     private void readDictionary()
     {
+        //Read data from dictionary file
         try {
             File file = new File("src\\resources\\in\\Dictionary.txt");
             Scanner in = new Scanner(file);
@@ -30,11 +31,12 @@ public class Model {
                 str=in.nextLine();
                 for (int i=0; i<str.length(); i++)
                 {
+                    //skip Byte Order Mark
                     if(str.charAt(0)!='\uFEFF')
                         c=str.charAt(0);
                     else
                         c=str.charAt(1);
-
+                    //get double after tab char
                     if(str.charAt(i)=='\u0009') {
                         num = Double.parseDouble(str.substring(i + 1, str.length()));
                         break;
@@ -52,6 +54,7 @@ public class Model {
 
     private void readStringToCode()
     {
+        //Read data from string to code file and save them to String variable
         try {
             File file = new File("src\\resources\\in\\StringToCode.txt");
             Scanner in = new Scanner(file);
@@ -67,6 +70,7 @@ public class Model {
         }
     }
 
+    //sorting map by probability values
     private LinkedHashMap<Character, Double> sortHashMapByValues(HashMap<Character, Double> passedMap)
     {
         List<Character> mapKeys = new ArrayList<>(passedMap.keySet());
@@ -99,14 +103,20 @@ public class Model {
         return sortedMap;
     }
 
+    //Validating probability
     private void validateProbability() throws Exception
     {
         List<Double> dictionaryValues = new ArrayList<>(dictionary.values());
         Iterator<Double> dictionaryIterator = dictionaryValues.iterator();
         double valid =0.0;
+        double temp;
 
-        while(dictionaryIterator.hasNext())
-            valid+=dictionaryIterator.next();
+        while(dictionaryIterator.hasNext()) {
+            temp = dictionaryIterator.next();
+            if(temp < 0.0)
+                throw new Exception("Probability can't be less than 0!");
+            valid += temp;
+        }
 
         if (valid>1.0)
             throw new Exception("Probability higher than 1.0");
